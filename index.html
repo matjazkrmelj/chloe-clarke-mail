@@ -128,6 +128,34 @@
   #status.ok { color: var(--ok); }
   #status.err { color: var(--err); }
 
+  /* ---------- favourite queen check ---------- */
+  .fav {
+    margin-top: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 12px 12px 12px 16px; border-radius: 18px; background: var(--soft); border: 1px solid transparent;
+  }
+  .fav-q { margin: 0; font-weight: 600; font-size: .98rem; line-height: 1.25; }
+  .fav-input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+  .fav-btn {
+    flex: none; display: inline-flex; align-items: center; gap: 8px; margin: 0; cursor: pointer; user-select: none;
+    min-height: 44px; padding: 0 16px 0 8px; border-radius: 999px; background: var(--card); color: var(--ink);
+    border: 1.5px solid color-mix(in srgb, var(--ink) 15%, transparent);
+    font: 700 .95rem/1 "Inter Tight", sans-serif; letter-spacing: .06em;
+    transition: background .2s ease, color .2s ease, border-color .2s ease, transform .15s ease;
+  }
+  .fav-btn .tick {
+    width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: .9rem;
+    border: 1.5px solid color-mix(in srgb, var(--ink) 20%, transparent); color: transparent;
+    transition: background .2s ease, color .2s ease, border-color .2s ease, transform .3s cubic-bezier(.2,1.6,.4,1);
+  }
+  .fav-input:checked + .fav-btn { background: linear-gradient(100deg, #ff5a7a, #b91925); color: #fff; border-color: transparent; }
+  .fav-input:checked + .fav-btn .tick { background: #fff; color: #b91925; border-color: #fff; transform: scale(1.08) rotate(-8deg); }
+  .fav-input:focus-visible + .fav-btn { outline: 2px solid var(--red); outline-offset: 3px; }
+  .fav-btn:active { transform: scale(.96); }
+
+  /* show errors only after a send attempt */
+  form.tried input:invalid:not(.fav-input), form.tried textarea:invalid { border-color: var(--err); }
+  form.tried .fav:has(.fav-input:invalid) { border-color: var(--err); }
+
   /* ---------- marquee ---------- */
   .marquee { width: calc(100% + 32px); margin-top: 26px; overflow: hidden;
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent); mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent); }
@@ -173,6 +201,12 @@
       <textarea id="message" name="message" required placeholder="Write your message…"></textarea>
     </div>
 
+    <div class="fav">
+      <p class="fav-q" id="fav-q">Am I your favourite Drag Queen?</p>
+      <input class="fav-input" id="fav" name="favourite_drag_queen" type="checkbox" value="YES" required aria-labelledby="fav-q fav-label">
+      <label class="fav-btn" for="fav" id="fav-label"><span class="tick" aria-hidden="true">✓</span>YES</label>
+    </div>
+
     <!-- spam trap: real people never fill this in -->
     <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
 
@@ -214,8 +248,20 @@
     }, 2800);
   }
 
+  // clear custom messages as soon as the person fixes a field
+  form.addEventListener("input", (e) => e.target.setCustomValidity && e.target.setCustomValidity(""));
+  form.addEventListener("change", (e) => e.target.setCustomValidity && e.target.setCustomValidity(""));
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    form.classList.add("tried");
+    // whitespace-only answers don't count as filled in
+    for (const el of form.querySelectorAll("input[type=text], input[type=email], textarea")) {
+      if (el.classList.contains("hp")) continue;
+      el.setCustomValidity(el.value.trim() ? "" : "Please fill in this field.");
+    }
+    const fav = document.getElementById("fav");
+    fav.setCustomValidity(fav.checked ? "" : "You have to say YES to send 💅");
     if (!form.checkValidity()) {
       form.reportValidity();
       return;
@@ -240,6 +286,7 @@
         throw new Error(json.message || "Request failed");
       }
       form.reset();
+      form.classList.remove("tried");
       setStatus("Sent! Thanks for your message.", "ok");
     } catch (err) {
       setStatus("Couldn't send right now. Please try again in a moment.", "err");
