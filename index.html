@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f5d50">
+<title>Send a message</title>
+<style>
+  :root {
+    --bg: #f4f1ec; --card: #ffffff; --text: #1f2421; --muted: #6b716d;
+    --border: #d9d5ce; --accent: #2f5d50; --accent-text: #ffffff;
+    --ok: #2e7d4f; --err: #b3261e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151816; --card: #1f2321; --text: #ecefed; --muted: #9aa29d;
+      --border: #3a403c; --accent: #7fc2ad; --accent-text: #0f1311;
+      --ok: #7fd3a0; --err: #ff8a80;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100dvh; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+    display: flex; justify-content: center; align-items: flex-start;
+  }
+  .wrap { width: 100%; max-width: 480px; display: flex; flex-direction: column; align-items: center; }
+  .hero { display: block; width: 72%; max-width: 300px; height: auto; position: relative; z-index: 1; margin-bottom: -46px; }
+  main {
+    width: 100%; background: var(--card);
+    border: 1px solid var(--border); border-radius: 16px; padding: 24px 20px;
+  }
+  label:first-of-type { margin-top: 0; }
+  label { display: block; font-weight: 600; font-size: .9rem; margin: 16px 0 6px; }
+  input, textarea {
+    width: 100%; font: inherit; font-size: 16px; /* 16px stops iOS zoom on focus */
+    color: var(--text); background: var(--bg);
+    border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
+  }
+  textarea { min-height: 180px; resize: vertical; }
+  input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+  button {
+    width: 100%; margin-top: 22px; min-height: 52px; border: 0; border-radius: 12px;
+    background: var(--accent); color: var(--accent-text); font: inherit; font-weight: 700; font-size: 1.05rem;
+    cursor: pointer;
+  }
+  button:disabled { opacity: .6; cursor: default; }
+  .hp { position: absolute; left: -9999px; }
+  #status { margin: 14px 0 0; min-height: 1.5em; font-size: .95rem; text-align: center; }
+  #status.ok { color: var(--ok); }
+  #status.err { color: var(--err); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<img class="hero" src="chloe.png" alt="Chloe Clarke">
+<main>
+  <form id="form" novalidate>
+    <label for="email">Your email address</label>
+    <input id="email" name="email" type="email" inputmode="email" autocomplete="email" required placeholder="you@example.com">
+
+    <label for="subject">Subject</label>
+    <input id="subject" name="_subject" type="text" autocomplete="off" required placeholder="What's it about?">
+
+    <label for="message">Message</label>
+    <textarea id="message" name="message" required placeholder="Write your message…"></textarea>
+
+    <!-- spam trap: real people never fill this in -->
+    <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+    <button id="send" type="submit">Send</button>
+    <p id="status" role="status" aria-live="polite"></p>
+  </form>
+</main>
+</div>
+
+<script>
+  // ===== CONFIG: put the recipient's email address here (the only place it is set) =====
+  const RECIPIENT = "CHLOE_EMAIL_HERE@example.com";
+  // =====================================================================================
+
+  const form = document.getElementById("form");
+  const btn = document.getElementById("send");
+  const statusEl = document.getElementById("status");
+
+  function setStatus(text, kind) {
+    statusEl.textContent = text;
+    statusEl.className = kind || "";
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = "Sending…";
+    setStatus("");
+
+    const data = Object.fromEntries(new FormData(form));
+    data._replyto = data.email;        // replying in Chloe's inbox goes to the sender
+    data._template = "box";
+    data._captcha = "false";
+
+    try {
+      const res = await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(RECIPIENT), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(data)
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json.success === false || json.success === "false") {
+        throw new Error(json.message || "Request failed");
+      }
+      form.reset();
+      setStatus("Sent! Thanks for your message.", "ok");
+    } catch (err) {
+      setStatus("Couldn't send right now. Please try again in a moment.", "err");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Send";
+    }
+  });
+</script>
+</body>
+</html>
