@@ -57,7 +57,10 @@
   @keyframes twinkle { 0%,100% { opacity: .35; transform: scale(.8) rotate(0); } 50% { opacity: 1; transform: scale(1.1) rotate(20deg); } }
   @media (prefers-reduced-motion: reduce) { .spark { animation: none; } }
 
-  .hero { display: block; width: 72%; max-width: 300px; height: auto; position: relative; z-index: 1; margin-top: -50px; margin-bottom: -46px; }
+  /* photo is two slices: the top ends exactly at the frame's edge, the hand slice overlaps the frame */
+  .hero { position: relative; z-index: 1; width: min(72%, 300px); margin-top: -50px;
+    margin-bottom: calc(-1 * min(72%, 300px) * 61 / 422); }
+  .hero img { display: block; width: 100%; height: auto; }
 
   /* ---------- glass card ---------- */
   main {
@@ -103,7 +106,10 @@
   <span class="spark s2" aria-hidden="true">✧</span>
   <span class="spark s3" aria-hidden="true">✦</span>
 </header>
-<img class="hero" src="chloe.png" alt="Chloe Clarke">
+<div class="hero">
+  <img src="chloe-top.png" alt="Chloe Clarke" width="422" height="587">
+  <img src="chloe-hand.png" alt="" width="422" height="61">
+</div>
 <main>
   <form id="form" novalidate>
     <label for="email">Your email address</label>
