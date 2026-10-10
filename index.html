@@ -3,58 +3,106 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#2f5d50">
-<title>Send a message</title>
+<meta name="theme-color" content="#f6f0ff">
+<title>Send an email to Chloe Clarke</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rubik:ital,wght@1,900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f4f1ec; --card: #ffffff; --text: #1f2421; --muted: #6b716d;
-    --border: #d9d5ce; --accent: #2f5d50; --accent-text: #ffffff;
-    --ok: #2e7d4f; --err: #b3261e;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #151816; --card: #1f2321; --text: #ecefed; --muted: #9aa29d;
-      --border: #3a403c; --accent: #7fc2ad; --accent-text: #0f1311;
-      --ok: #7fd3a0; --err: #ff8a80;
-    }
+    --text: #24131a; --muted: #6e5a63;
+    --red: #e0123a; --red-deep: #8f0a24;
+    --chrome-1: #ffffff; --chrome-2: #c9ccd6; --chrome-3: #7d8294;
+    --glass: rgba(255,255,255,.62); --glass-border: rgba(255,255,255,.9);
+    --field: rgba(255,255,255,.75); --field-border: #d7cfe6;
+    --ok: #1f8a52; --err: #c4122f;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
+  html { background: #f6f0ff; }
   body {
-    background: var(--bg); color: var(--text);
-    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    min-height: 100dvh; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+    color: var(--text);
+    font: 16px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100dvh; padding: max(20px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
     display: flex; justify-content: center; align-items: flex-start;
+    background:
+      radial-gradient(60% 40% at 15% 10%, #ffd6ec 0%, transparent 70%),
+      radial-gradient(55% 40% at 90% 25%, #d6e4ff 0%, transparent 70%),
+      radial-gradient(70% 50% at 50% 100%, #ffe0e6 0%, transparent 70%),
+      linear-gradient(160deg, #f6f0ff 0%, #fdf2f6 50%, #eef3ff 100%);
+    background-attachment: fixed;
   }
   .wrap { width: 100%; max-width: 480px; display: flex; flex-direction: column; align-items: center; }
+
+  /* ---------- Y2K logo ---------- */
+  .logo { text-align: center; margin: 4px 0 6px; position: relative; }
+  .logo .pre {
+    display: inline-block; font: 700 .78rem/1 Orbitron, sans-serif; letter-spacing: .32em; text-transform: uppercase;
+    color: var(--red-deep); padding: 7px 14px 6px 18px; border-radius: 999px;
+    background: linear-gradient(180deg, #fff 0%, #eceef4 55%, #d4d7e2 100%);
+    border: 1px solid #fff; box-shadow: 0 1px 0 #b9bdca, 0 4px 14px rgba(143,10,36,.12);
+  }
+  .logo h1 {
+    margin: 10px 0 0; font: italic 900 clamp(2.6rem, 13vw, 3.6rem)/.95 Rubik, sans-serif; letter-spacing: -.02em;
+    background: linear-gradient(180deg, #ff6b86 0%, var(--red) 42%, var(--red-deep) 50%, #ff2d55 62%, #ffc2cf 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    -webkit-text-stroke: 1.5px #fff;
+    filter: drop-shadow(0 2px 0 #b9bdca) drop-shadow(0 6px 12px rgba(143,10,36,.25));
+  }
+  .spark { position: absolute; color: #fff; text-shadow: 0 0 6px #ff9fb4, 0 0 2px #c9ccd6; pointer-events: none;
+    animation: twinkle 2.4s ease-in-out infinite; }
+  .s1 { top: 30px; left: -6px; font-size: 1.5rem; }
+  .s2 { top: -4px; right: 6px; font-size: 1.1rem; animation-delay: .8s; }
+  .s3 { bottom: -6px; right: -10px; font-size: 1.3rem; animation-delay: 1.5s; }
+  @keyframes twinkle { 0%,100% { opacity: .35; transform: scale(.8) rotate(0); } 50% { opacity: 1; transform: scale(1.1) rotate(20deg); } }
+  @media (prefers-reduced-motion: reduce) { .spark { animation: none; } }
+
   .hero { display: block; width: 72%; max-width: 300px; height: auto; position: relative; z-index: 1; margin-bottom: -46px; }
+
+  /* ---------- glass card ---------- */
   main {
-    width: 100%; background: var(--card);
-    border: 1px solid var(--border); border-radius: 16px; padding: 24px 20px;
+    width: 100%; background: var(--glass);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    border: 1.5px solid var(--glass-border); border-radius: 26px; padding: 26px 20px 22px;
+    box-shadow: 0 0 0 1px rgba(201,204,214,.7), 0 18px 40px rgba(120,60,110,.14), inset 0 1px 0 #fff;
   }
   label:first-of-type { margin-top: 0; }
-  label { display: block; font-weight: 600; font-size: .9rem; margin: 16px 0 6px; }
+  label { display: block; font: 700 .72rem/1 Orbitron, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
   input, textarea {
     width: 100%; font: inherit; font-size: 16px; /* 16px stops iOS zoom on focus */
-    color: var(--text); background: var(--bg);
-    border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
+    color: var(--text); background: var(--field);
+    border: 1.5px solid var(--field-border); border-radius: 16px; padding: 13px 15px;
+    box-shadow: inset 0 2px 4px rgba(120,60,110,.06);
   }
-  textarea { min-height: 180px; resize: vertical; }
-  input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+  input::placeholder, textarea::placeholder { color: #a497ad; }
+  textarea { min-height: 170px; resize: vertical; }
+  input:focus, textarea:focus { outline: none; border-color: #ff7a93; box-shadow: 0 0 0 4px rgba(255,45,85,.15); }
   button {
-    width: 100%; margin-top: 22px; min-height: 52px; border: 0; border-radius: 12px;
-    background: var(--accent); color: var(--accent-text); font: inherit; font-weight: 700; font-size: 1.05rem;
-    cursor: pointer;
+    width: 100%; margin-top: 24px; min-height: 56px; border: 1.5px solid #fff; border-radius: 999px; cursor: pointer;
+    font: 700 1rem/1 Orbitron, sans-serif; letter-spacing: .2em; text-transform: uppercase; color: #fff;
+    text-shadow: 0 1px 1px rgba(80,0,20,.45);
+    background: linear-gradient(180deg, #ff8aa1 0%, #ff2d55 45%, #c80d33 55%, #ff3b62 100%);
+    box-shadow: 0 0 0 1px #c9ccd6, 0 8px 20px rgba(224,18,58,.35), inset 0 2px 0 rgba(255,255,255,.55);
+    transition: transform .1s ease, filter .2s ease;
   }
+  button:active { transform: translateY(1px) scale(.99); }
+  button:hover { filter: brightness(1.05); }
   button:disabled { opacity: .6; cursor: default; }
   .hp { position: absolute; left: -9999px; }
-  #status { margin: 14px 0 0; min-height: 1.5em; font-size: .95rem; text-align: center; }
+  #status { margin: 14px 0 0; min-height: 1.5em; font-size: .95rem; font-weight: 600; text-align: center; }
   #status.ok { color: var(--ok); }
   #status.err { color: var(--err); }
 </style>
 </head>
 <body>
 <div class="wrap">
+<header class="logo">
+  <span class="pre">Send an email to</span>
+  <h1>Chloe Clarke</h1>
+  <span class="spark s1" aria-hidden="true">✦</span>
+  <span class="spark s2" aria-hidden="true">✧</span>
+  <span class="spark s3" aria-hidden="true">✦</span>
+</header>
 <img class="hero" src="chloe.png" alt="Chloe Clarke">
 <main>
   <form id="form" novalidate>
