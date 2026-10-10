@@ -13,7 +13,7 @@
   :root {
     --bg: #f7f5f2; --ink: #111012; --muted: #77727a; --soft: #efece8;
     --card: #ffffff; --card-border: rgba(17,16,18,.07);
-    --red: #d3122f; --blob-1: #ff8fa3; --blob-2: #c9b8ff; --blob-3: #ffd2b8;
+    --red: #d3122f; --blob-1: #ff5a7a; --blob-2: #ffb3c1; --blob-3: #b91925;
     --chip: rgba(255,255,255,.82); --chip-border: rgba(17,16,18,.06);
     --shadow: 0 1px 2px rgba(17,16,18,.04), 0 12px 24px -8px rgba(17,16,18,.10), 0 40px 80px -24px rgba(120,40,70,.18);
     --ok: #158a4c; --err: #d3122f;
@@ -22,7 +22,7 @@
     :root {
       --bg: #0e0d0f; --ink: #f4f1ee; --muted: #9b95a0; --soft: #1d1b20;
       --card: #161418; --card-border: rgba(255,255,255,.08);
-      --red: #ff4d66; --blob-1: #8a1a35; --blob-2: #3b2a7a; --blob-3: #5a2a1a;
+      --red: #ff4d66; --blob-1: #b91925; --blob-2: #6e1222; --blob-3: #ff5a7a;
       --chip: rgba(30,28,33,.8); --chip-border: rgba(255,255,255,.08);
       --shadow: 0 1px 2px rgba(0,0,0,.3), 0 24px 60px -20px rgba(0,0,0,.6);
       --ok: #5fd896; --err: #ff6b7f;
@@ -54,14 +54,14 @@
   h1 em {
     font-family: "DM Serif Display", Georgia, serif; font-style: normal; font-weight: 400; letter-spacing: -.02em;
     font-size: 1.08em; line-height: .9; padding-right: .08em;
-    background: linear-gradient(100deg, var(--red) 0%, #ff5a7a 50%, #9b5cff 100%);
+    background: linear-gradient(100deg, #ff5a7a 0%, #b91925 100%);
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   @keyframes in { from { opacity: 0; transform: translateY(14px); filter: blur(6px); } }
 
   /* ---------- photo stage ---------- */
   .stage { position: relative; z-index: 1; width: 100%; display: flex; justify-content: center; margin-top: -28px; }
-  .blob { position: absolute; inset: 12% 4% 6%; border-radius: 50%; filter: blur(48px); opacity: .75; z-index: 0;
+  .blob { position: absolute; inset: 12% 4% 6%; border-radius: 50%; filter: blur(48px); opacity: .6; z-index: 0;
     background: radial-gradient(40% 45% at 30% 40%, var(--blob-1), transparent 70%),
                 radial-gradient(45% 45% at 72% 35%, var(--blob-2), transparent 70%),
                 radial-gradient(50% 40% at 50% 80%, var(--blob-3), transparent 70%);
@@ -87,7 +87,7 @@
   .chip.c1 { left: 0; top: 40%; animation-delay: .7s, 0s; }
   .chip.c1 .ic { background: rgba(255,90,122,.16); }
   .chip.c2 { right: 0; top: 66%; animation-delay: .9s, -3s; }
-  .chip.c2 .ic { background: rgba(155,92,255,.16); color: var(--ink); }
+  .chip.c2 .ic { background: rgba(185,25,37,.12); color: var(--ink); }
   @keyframes float { 50% { transform: translateY(-8px); } }
 
   /* ---------- form card ---------- */
