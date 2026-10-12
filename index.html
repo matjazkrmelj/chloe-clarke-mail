@@ -296,9 +296,10 @@
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({
           _subject: fields.subject,
-          From: fields.from_email,
-          Message: fields.message,
-          _replyto: fields.from_email,   // replying in the inbox goes to the sender
+          // FormSubmit sets the email's Reply-To from a field named exactly "email"
+          email: fields.from_email,
+          message: fields.message,
+          _replyto: fields.from_email,
           _template: "basic",
           _captcha: "false"
         })
