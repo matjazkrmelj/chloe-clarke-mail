@@ -293,6 +293,9 @@
     try {
       res = await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(RECIPIENT), {
         method: "POST",
+        // browsers only send the site's root address to other sites by default;
+        // this sends the full page address, so the email names the right page
+        referrerPolicy: "no-referrer-when-downgrade",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({
           _subject: fields.subject,
