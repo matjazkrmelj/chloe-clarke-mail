@@ -223,8 +223,16 @@
 </div>
 
 <script>
-  // ===== CONFIG: put the recipient's email address here (the only place it is set) =====
+  // ===== CONFIG ========================================================================
+  // Where messages go (used by the FormSubmit fallback; with EmailJS the "To" address is set in the EmailJS template).
   const RECIPIENT = "matjaz.krmelj1@gmail.com";
+  // EmailJS (custom email template). Fill in all three from your EmailJS dashboard to switch over.
+  // While any of them is empty, the form keeps sending through FormSubmit.
+  const EMAILJS = {
+    publicKey: "",   // Account > General > Public Key
+    serviceId: "",   // Email Services > your Gmail service > Service ID
+    templateId: ""   // Email Templates > your template > Template ID
+  };
   // =====================================================================================
 
   const form = document.getElementById("form");
@@ -250,6 +258,64 @@
         rot.classList.remove("out");
       }, 380);
     }, 2800);
+  }
+
+  const UNREACHABLE = "Couldn't reach the mail service. Check your connection or turn off ad blockers for this page, then try again.";
+  const useEmailJS = () => Boolean(EMAILJS.publicKey && EMAILJS.serviceId && EMAILJS.templateId);
+
+  // EmailJS: the email is built from your own template using {{from_email}}, {{subject}} and {{message}}
+  async function sendWithEmailJS(fields) {
+    let res;
+    try {
+      res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          service_id: EMAILJS.serviceId,
+          template_id: EMAILJS.templateId,
+          user_id: EMAILJS.publicKey,
+          template_params: fields
+        })
+      });
+    } catch (err) {
+      console.error("EmailJS request failed", err);
+      return { ok: false, message: UNREACHABLE };
+    }
+    if (res.ok) return { ok: true };
+    const text = await res.text().catch(() => "");
+    console.error("EmailJS said no", res.status, text);
+    return { ok: false, message: "Couldn't send: " + (text || "error " + res.status) };
+  }
+
+  // FormSubmit fallback: fields starting with "_" are settings and never appear in the email
+  async function sendWithFormSubmit(fields) {
+    let res;
+    try {
+      res = await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(RECIPIENT), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          _subject: fields.subject,
+          From: fields.from_email,
+          Message: fields.message,
+          _replyto: fields.from_email,   // replying in the inbox goes to the sender
+          _template: "basic",
+          _captcha: "false"
+        })
+      });
+    } catch (err) {
+      console.error("FormSubmit request failed", err);
+      return { ok: false, message: UNREACHABLE };
+    }
+    const json = await res.json().catch(() => ({}));
+    if (res.ok && json.success !== false && json.success !== "false") return { ok: true };
+    const msg = String(json.message || "");
+    console.error("FormSubmit said no", res.status, json);
+    if (/activat/i.test(msg)) {
+      // first ever submission: FormSubmit emails the recipient an "Activate Form" link
+      return { ok: false, message: "Almost there! The inbox owner needs to click the activation link FormSubmit just emailed them. After that, messages go through." };
+    }
+    return { ok: false, message: msg ? "Couldn't send: " + msg : "Couldn't send right now (error " + res.status + "). Please try again in a moment." };
   }
 
   // clear custom messages as soon as the person fixes a field
@@ -279,44 +345,18 @@
     btn.querySelector(".label").textContent = "Sending…";
     setStatus("");
 
-    // The email itself carries only the subject and the message text.
-    // Fields starting with "_" are settings for FormSubmit and never appear in the email.
-    const data = {
-      _subject: form.elements["_subject"].value.trim(),
-      message: form.elements["message"].value,
-      _replyto: form.elements["email"].value.trim(),   // replying in the inbox goes to the sender
-      _honey: form.elements["_honey"].value,
-      _template: "basic",
-      _captcha: "false"
+    const fields = {
+      from_email: form.elements["email"].value.trim(),
+      subject: form.elements["_subject"].value.trim(),
+      message: form.elements["message"].value
     };
+    // spam trap filled in: pretend it worked and send nothing
+    if (form.elements["_honey"].value) { form.reset(); setStatus("Sent! Thanks for your message.", "ok"); btn.disabled = false; btn.querySelector(".label").textContent = "Send"; return; }
 
-    let res;
     try {
-      res = await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(RECIPIENT), {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify(data)
-      });
-    } catch (err) {
-      // the request never reached FormSubmit (offline, or blocked by an ad/tracker blocker)
-      console.error("FormSubmit request failed", err);
-      setStatus("Couldn't reach the mail service. Check your connection or turn off ad blockers for this page, then try again.", "err");
-      btn.disabled = false;
-      btn.querySelector(".label").textContent = "Send";
-      return;
-    }
-    try {
-      const json = await res.json().catch(() => ({}));
-      const ok = res.ok && json.success !== false && json.success !== "false";
-      if (!ok) {
-        const msg = String(json.message || "");
-        console.error("FormSubmit said no", res.status, json);
-        if (/activat/i.test(msg)) {
-          // first ever submission: FormSubmit emails the recipient an "Activate Form" link
-          setStatus("Almost there! The inbox owner needs to click the activation link FormSubmit just emailed them. After that, messages go through.", "err");
-        } else {
-          setStatus(msg ? "Couldn't send: " + msg : "Couldn't send right now (error " + res.status + "). Please try again in a moment.", "err");
-        }
+      const result = useEmailJS() ? await sendWithEmailJS(fields) : await sendWithFormSubmit(fields);
+      if (!result.ok) {
+        setStatus(result.message, "err");
         return;
       }
       form.reset();

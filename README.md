@@ -1,10 +1,29 @@
 # Email form app
 
-A single static page (`index.html`) with: your email address, subject, message, and a Send button. Built mobile-first.
+A single static page (`index.html`) where fans send Chloe Clarke an email: their email address, subject, message, a "favourite Drag Queen" YES/NO check (only YES sends), and a Send button. Built mobile-first and served by GitHub Pages at https://matjazkrmelj.github.io/chloe-clarke-mail/.
 
-## Make sending work (2 steps)
-1. The recipient address is set on the `RECIPIENT` line near the bottom of `index.html` (currently matjaz.krmelj1@gmail.com).
-2. Host the page anywhere static (Netlify Drop, GitHub Pages, Cloudflare Pages), then send one test message.
-   FormSubmit.co emails the recipient a one-time activation link; once they click it, every message is delivered to their inbox.
+## How sending works
+All settings live in the `CONFIG` block near the bottom of `index.html`.
 
-Replying to a received message goes straight back to the sender's address.
+- **EmailJS (custom email template)** is used as soon as `publicKey`, `serviceId` and `templateId` are filled in.
+- **FormSubmit** is the fallback while any of those are empty. It sends to `RECIPIENT` (currently matjaz.krmelj1@gmail.com) using FormSubmit's own layout. The first message triggers a one-time activation email to that address.
+
+## Set up EmailJS (free, 200 emails/month)
+1. Create an account at https://www.emailjs.com.
+2. **Email Services → Add New Service → Gmail.** Connect the Gmail account that should send the emails, then copy the **Service ID**.
+3. **Email Templates → Create New Template**, and fill it in like this:
+   - **Subject:** `{{subject}}`
+   - **To Email:** `matjaz.krmelj1@gmail.com`
+   - **Reply To:** `{{from_email}}`
+   - **Content:**
+     ```
+     From: {{from_email}}
+
+     {{message}}
+     ```
+   Save it and copy the **Template ID**.
+4. **Account → General**: copy the **Public Key**.
+5. Optional but recommended: in **Account → Security**, add `https://matjazkrmelj.github.io` as an allowed origin so only this page can use your keys.
+6. Put the three values in the `EMAILJS` block in `index.html` and push.
+
+The template variables the page sends are `{{from_email}}`, `{{subject}}` and `{{message}}`. Replying to a received email goes straight back to the sender.
