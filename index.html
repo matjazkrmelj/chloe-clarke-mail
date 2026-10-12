@@ -225,7 +225,7 @@
 <script>
   // ===== CONFIG ========================================================================
   // Where messages go (used by the FormSubmit fallback; with EmailJS the "To" address is set in the EmailJS template).
-  const RECIPIENT = "matjaz.krmelj1@gmail.com";
+  const RECIPIENT = "";   // your friend's address
   // EmailJS (custom email template). Fill in all three from your EmailJS dashboard to switch over.
   // While any of them is empty, the form keeps sending through FormSubmit.
   const EMAILJS = {
@@ -353,6 +353,11 @@
     // spam trap filled in: pretend it worked and send nothing
     if (form.elements["_honey"].value) { form.reset(); setStatus("Sent! Thanks for your message.", "ok"); btn.disabled = false; btn.querySelector(".label").textContent = "Send"; return; }
 
+    if (!useEmailJS() && !RECIPIENT) {
+      setStatus("This form isn't connected to an inbox yet. Please try again later.", "err");
+      btn.disabled = false; btn.querySelector(".label").textContent = "Send";
+      return;
+    }
     try {
       const result = useEmailJS() ? await sendWithEmailJS(fields) : await sendWithFormSubmit(fields);
       if (!result.ok) {

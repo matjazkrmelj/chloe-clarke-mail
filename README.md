@@ -6,14 +6,14 @@ A single static page (`index.html`) where fans send Chloe Clarke an email: their
 All settings live in the `CONFIG` block near the bottom of `index.html`.
 
 - **EmailJS (custom email template)** is used as soon as `publicKey`, `serviceId` and `templateId` are filled in.
-- **FormSubmit** is the fallback while any of those are empty. It sends to `RECIPIENT` (currently matjaz.krmelj1@gmail.com) using FormSubmit's own layout. The first message triggers a one-time activation email to that address.
+- **FormSubmit** is the fallback while any of those are empty. It sends to `RECIPIENT` using FormSubmit's own layout. The first message triggers a one-time activation email to that address.
 
 ## Set up EmailJS (free, 200 emails/month)
 1. Create an account at https://www.emailjs.com.
 2. **Email Services → Add New Service → Gmail.** Connect the Gmail account that should send the emails, then copy the **Service ID**.
 3. **Email Templates → Create New Template**, and fill it in like this:
    - **Subject:** `{{subject}}`
-   - **To Email:** `matjaz.krmelj1@gmail.com`
+   - **To Email:** your friend's email address
    - **Reply To:** `{{from_email}}`
    - **Content:**
      ```
