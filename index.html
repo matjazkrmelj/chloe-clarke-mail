@@ -279,10 +279,16 @@
     btn.querySelector(".label").textContent = "Sending…";
     setStatus("");
 
-    const data = Object.fromEntries(new FormData(form));
-    data._replyto = data.email;        // replying in Chloe's inbox goes to the sender
-    data._template = "box";
-    data._captcha = "false";
+    // The email itself carries only the subject and the message text.
+    // Fields starting with "_" are settings for FormSubmit and never appear in the email.
+    const data = {
+      _subject: form.elements["_subject"].value.trim(),
+      message: form.elements["message"].value,
+      _replyto: form.elements["email"].value.trim(),   // replying in the inbox goes to the sender
+      _honey: form.elements["_honey"].value,
+      _template: "basic",
+      _captcha: "false"
+    };
 
     let res;
     try {
